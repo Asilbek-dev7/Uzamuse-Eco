@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://uzamuseeco.com/sitemap.xml

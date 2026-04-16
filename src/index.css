@@ -1,0 +1,99 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Space Grotesk", serif;
+  --color-primary: #84cc16;
+  --color-primary-dark: #4d7c0f;
+  --color-accent: #0ea5e9;
+  --color-surface: #050505;
+  --color-surface-light: #0a0a0a;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+    height: 100%;
+    overflow-y: auto;
+  }
+  body {
+    @apply bg-surface text-white antialiased;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100%;
+    overflow-x: hidden;
+    touch-action: pan-y;
+  }
+  
+  /* Fluid Typography Scaling */
+  h1 { font-size: clamp(2.5rem, 8vw, 5rem); @apply font-serif tracking-tight leading-[1.1]; }
+  h2 { font-size: clamp(2rem, 6vw, 3.5rem); @apply font-serif tracking-tight leading-[1.1]; }
+  h3 { font-size: clamp(1.5rem, 4vw, 2.5rem); @apply font-serif tracking-tight; }
+  p { font-size: clamp(0.9375rem, 1vw, 1.125rem); @apply leading-relaxed text-white/60; }
+
+  /* Better Touch Targets */
+  button, a {
+    @apply transition-all duration-300;
+  }
+  
+  ::selection {
+    @apply bg-primary text-black;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-surface;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-white/10 rounded-full hover:bg-primary/40 transition-colors;
+}
+
+@layer utilities {
+  .safe-top { padding-top: env(safe-area-inset-top); }
+  .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+  
+  .glass {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10;
+  }
+  
+  .glass-dark {
+    @apply bg-black/40 backdrop-blur-2xl border border-white/5;
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-br from-white via-white to-white/40;
+  }
+
+  .text-primary-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-br from-primary via-primary to-primary-dark;
+  }
+
+  .mask-radial {
+    mask-image: radial-gradient(circle at center, black, transparent 80%);
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Mobile Specific Fixes */
+@media (max-width: 768px) {
+  .mobile-no-scroll {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+  }
+}
