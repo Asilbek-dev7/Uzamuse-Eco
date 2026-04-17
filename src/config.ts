@@ -10,7 +10,7 @@ export const SITE_CONFIG = {
   assetsBase: ASSETS_BASE,
 
   // LOGO
-  logo: `https://lh3.googleusercontent.com/d/1515Qv-gaIV8N1nTSiecBWPfIMVyIG4iU`, 
+  logo: `https://uzamuseeco.com/logo.png`,
   
   // HERO SECTION
   hero: {

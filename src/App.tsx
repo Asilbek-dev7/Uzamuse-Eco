@@ -16,6 +16,13 @@ import { TextReveal } from './components/TextReveal';
 import { AuthModal } from './components/AuthModal';
 import { useAuth } from './hooks/useAuth';
 
+const getInitialLanguage = (): Language => {
+  if (typeof window === 'undefined') return 'uz';
+
+  const lang = new URLSearchParams(window.location.search).get('lang');
+  return lang === 'ru' || lang === 'en' || lang === 'uz' ? lang : 'uz';
+};
+
 // Lazy loaded components
 const CatalogModal = lazy(() => import('./components/CatalogModal').then(m => ({ default: m.CatalogModal })));
 const ContactModal = lazy(() => import('./components/ContactModal').then(m => ({ default: m.ContactModal })));
@@ -92,7 +99,7 @@ const ProgressBar = ({ scrollYProgress }: { scrollYProgress: any }) => {
 };
 
 export default function App() {
-  const [lang, setLang] = useState<Language>('uz');
+  const [lang, setLang] = useState<Language>(getInitialLanguage);
   const [contactModalOpen, setContactModalOpen] = useState(false);
   const [catalogModalOpen, setCatalogModalOpen] = useState(false);
   const [pdfModal, setPdfModal] = useState({ isOpen: false, url: '', title: '' });
@@ -145,6 +152,13 @@ export default function App() {
 
   useEffect(() => {
     syncSeo(lang);
+    const url = new URL(window.location.href);
+    if (lang === 'uz') {
+      url.searchParams.delete('lang');
+    } else {
+      url.searchParams.set('lang', lang);
+    }
+    window.history.replaceState({}, '', url);
   }, [lang]);
 
   const handleOpenPdf = useCallback((url: string, title: string) => {
