@@ -1,7 +1,32 @@
 import type { Language } from "./translations";
 import { SITE_CONFIG } from "./config";
 
-const BASE_URL = "https://uzamuseeco.com/";
+const DEFAULT_BASE_URL = "https://uzamuseeco.com";
+
+function normalizeBaseUrl(url: string): string {
+  return url.replace(/\/+$/, "");
+}
+
+function resolveBaseUrl(): string {
+  const fromEnv = import.meta.env.VITE_SITE_URL as string | undefined;
+  if (fromEnv && fromEnv.trim()) {
+    return normalizeBaseUrl(fromEnv.trim());
+  }
+
+  if (typeof window !== "undefined" && window.location?.origin) {
+    return normalizeBaseUrl(window.location.origin);
+  }
+
+  return DEFAULT_BASE_URL;
+}
+
+const BASE_URL = resolveBaseUrl();
+const ROOT_URL = `${BASE_URL}/`;
+
+function toAbsoluteUrl(value: string): string {
+  if (/^https?:\/\//i.test(value)) return value;
+  return `${BASE_URL}${value.startsWith("/") ? value : `/${value}`}`;
+}
 
 const SEO = {
   ru: {
@@ -9,7 +34,7 @@ const SEO = {
     description:
       "UZAMUSE ECO проектирует и строит аттракционы, zipline, веревочные парки и канатные дороги в Узбекистане.",
     keywords:
-      "uzamuse eco, аттракционы узбекистан, проект аттракциона, zipline uzbekistan, канатная дорога узбекистан, rope park uzbekistan",
+      "uzamuse eco, аттракционы узбекистан, проект аттракциона, проектирование аттракционов, zipline uzbekistan, канатная дорога узбекистан, веревочный парк узбекистан, rope park uzbekistan, туристические объекты узбекистан, строительство аттракционов",
     locale: "ru_RU",
   },
   en: {
@@ -17,7 +42,7 @@ const SEO = {
     description:
       "UZAMUSE ECO delivers attraction, zipline, rope park and cable car projects in Uzbekistan.",
     keywords:
-      "uzamuse eco, attraction uzbekistan, attraction project, amusement park project, zipline uzbekistan, cable car uzbekistan",
+      "uzamuse eco, attraction uzbekistan, attraction project, amusement park project, zipline uzbekistan, cable car uzbekistan, rope park uzbekistan, tourism infrastructure uzbekistan, theme park construction uzbekistan, cable way project",
     locale: "en_US",
   },
   uz: {
@@ -25,16 +50,16 @@ const SEO = {
     description:
       "UZAMUSE ECO O'zbekistonda attraksion, zipline, arqonli park va kanat yo'li loyihalash hamda qurish bo'yicha professional kompaniya.",
     keywords:
-      "uzamuse eco, attraksion, attraksion uzbekiston, uzbekiston attraksion kompaniya, kanat yoli, zipline, rope park, amusement park project, loyiha, project uzbekistan",
+      "uzamuse eco, attraksion, attraksion uzbekiston, attraksion uzbekistan, uzbekiston attraksion kompaniya, kanat yoli, kanat yo'li, канатная дорога узбекистан, zipline, rope park, arqonli park, amusement park project, loyiha, project uzbekistan, turistik obyekt qurilishi",
     locale: "uz_UZ",
   },
 } satisfies Record<Language, { title: string; description: string; keywords: string; locale: string }>;
 
 const HREFLANG_URLS: Record<Language | "x-default", string> = {
-  uz: BASE_URL,
-  ru: `${BASE_URL}?lang=ru`,
-  en: `${BASE_URL}?lang=en`,
-  "x-default": BASE_URL,
+  uz: ROOT_URL,
+  ru: `${ROOT_URL}?lang=ru`,
+  en: `${ROOT_URL}?lang=en`,
+  "x-default": ROOT_URL,
 };
 
 const OG_LOCALE_ALTERNATES: Record<Language, string[]> = {
@@ -104,15 +129,16 @@ function ensureStructuredData() {
 export function syncSeo(lang: Language) {
   const current = SEO[lang];
   const canonicalUrl = HREFLANG_URLS[lang];
+  const absoluteLogoUrl = toAbsoluteUrl(SITE_CONFIG.logo);
   const schema = {
     "@context": "https://schema.org",
     "@graph": [
       {
         "@type": "Organization",
-        "@id": `${BASE_URL}#organization`,
+        "@id": `${ROOT_URL}#organization`,
         name: "UZAMUSE ECO",
-        url: BASE_URL,
-        logo: SITE_CONFIG.logo,
+        url: ROOT_URL,
+        logo: absoluteLogoUrl,
         description: current.description,
         sameAs: [
           "https://t.me/ExtremeConstruction",
@@ -133,8 +159,8 @@ export function syncSeo(lang: Language) {
       },
       {
         "@type": "WebSite",
-        "@id": `${BASE_URL}#website`,
-        url: BASE_URL,
+        "@id": `${ROOT_URL}#website`,
+        url: ROOT_URL,
         name: "UZAMUSE ECO",
         inLanguage: lang,
       },
@@ -144,20 +170,20 @@ export function syncSeo(lang: Language) {
         url: canonicalUrl,
         name: current.title,
         isPartOf: {
-          "@id": `${BASE_URL}#website`,
+          "@id": `${ROOT_URL}#website`,
         },
         about: {
-          "@id": `${BASE_URL}#organization`,
+          "@id": `${ROOT_URL}#organization`,
         },
         description: current.description,
         inLanguage: lang,
       },
       {
         "@type": "Service",
-        "@id": `${BASE_URL}#service`,
+        "@id": `${ROOT_URL}#service`,
         serviceType: SERVICES[lang].join(", "),
         provider: {
-          "@id": `${BASE_URL}#organization`,
+          "@id": `${ROOT_URL}#organization`,
         },
         areaServed: {
           "@type": "Country",
@@ -179,16 +205,29 @@ export function syncSeo(lang: Language) {
 
   ensureMeta('meta[name="description"]', { name: "description" }).setAttribute("content", current.description);
   ensureMeta('meta[name="keywords"]', { name: "keywords" }).setAttribute("content", current.keywords);
+  ensureMeta('meta[name="news_keywords"]', { name: "news_keywords" }).setAttribute("content", current.keywords);
   ensureMeta('meta[name="author"]', { name: "author" }).setAttribute("content", "UZAMUSE ECO");
   ensureMeta('meta[name="robots"]', { name: "robots" }).setAttribute(
     "content",
     "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1",
   );
+  ensureMeta('meta[name="googlebot"]', { name: "googlebot" }).setAttribute(
+    "content",
+    "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1",
+  );
+  ensureMeta('meta[name="theme-color"]', { name: "theme-color" }).setAttribute("content", "#050505");
+  ensureMeta('meta[name="color-scheme"]', { name: "color-scheme" }).setAttribute("content", "dark");
+  ensureMeta('meta[name="apple-mobile-web-app-capable"]', { name: "apple-mobile-web-app-capable" }).setAttribute("content", "yes");
+  ensureMeta('meta[name="apple-mobile-web-app-title"]', { name: "apple-mobile-web-app-title" }).setAttribute("content", "UZAMUSE ECO");
+  ensureMeta('meta[name="apple-mobile-web-app-status-bar-style"]', { name: "apple-mobile-web-app-status-bar-style" }).setAttribute("content", "black-translucent");
+  ensureMeta('meta[name="msapplication-TileColor"]', { name: "msapplication-TileColor" }).setAttribute("content", "#050505");
+  ensureMeta('meta[name="msapplication-TileImage"]', { name: "msapplication-TileImage" }).setAttribute("content", absoluteLogoUrl);
   ensureMeta('meta[property="og:title"]', { property: "og:title" }).setAttribute("content", current.title);
   ensureMeta('meta[property="og:description"]', { property: "og:description" }).setAttribute("content", current.description);
+  ensureMeta('meta[property="og:type"]', { property: "og:type" }).setAttribute("content", "website");
   ensureMeta('meta[property="og:locale"]', { property: "og:locale" }).setAttribute("content", current.locale);
   ensureMeta('meta[property="og:url"]', { property: "og:url" }).setAttribute("content", canonicalUrl);
-  ensureMeta('meta[property="og:image"]', { property: "og:image" }).setAttribute("content", SITE_CONFIG.logo);
+  ensureMeta('meta[property="og:image"]', { property: "og:image" }).setAttribute("content", absoluteLogoUrl);
   ensureMeta('meta[property="og:image:type"]', { property: "og:image:type" }).setAttribute("content", "image/png");
   ensureMeta('meta[property="og:image:width"]', { property: "og:image:width" }).setAttribute("content", "1024");
   ensureMeta('meta[property="og:image:height"]', { property: "og:image:height" }).setAttribute("content", "1024");
@@ -196,9 +235,10 @@ export function syncSeo(lang: Language) {
   ensureMeta('meta[property="og:site_name"]', { property: "og:site_name" }).setAttribute("content", "UZAMUSE ECO");
   ensureMeta('meta[name="twitter:title"]', { name: "twitter:title" }).setAttribute("content", current.title);
   ensureMeta('meta[name="twitter:description"]', { name: "twitter:description" }).setAttribute("content", current.description);
-  ensureMeta('meta[name="twitter:image"]', { name: "twitter:image" }).setAttribute("content", SITE_CONFIG.logo);
+  ensureMeta('meta[name="twitter:image"]', { name: "twitter:image" }).setAttribute("content", absoluteLogoUrl);
   ensureMeta('meta[name="twitter:image:alt"]', { name: "twitter:image:alt" }).setAttribute("content", "UZAMUSE ECO logo");
   ensureMeta('meta[name="twitter:card"]', { name: "twitter:card" }).setAttribute("content", "summary_large_image");
+  ensureMeta('meta[name="twitter:site"]', { name: "twitter:site" }).setAttribute("content", "@uzamuseeco");
   ensureMeta('meta[name="twitter:url"]', { name: "twitter:url" }).setAttribute("content", canonicalUrl);
   ensureMeta('meta[name="application-name"]', { name: "application-name" }).setAttribute("content", "UZAMUSE ECO");
   ensureMeta('meta[name="format-detection"]', { name: "format-detection" }).setAttribute("content", "telephone=yes");
@@ -210,6 +250,7 @@ export function syncSeo(lang: Language) {
   ensureLink('link[rel="alternate"][hreflang="ru"]', { rel: "alternate", hreflang: "ru" }).setAttribute("href", HREFLANG_URLS.ru);
   ensureLink('link[rel="alternate"][hreflang="en"]', { rel: "alternate", hreflang: "en" }).setAttribute("href", HREFLANG_URLS.en);
   ensureLink('link[rel="alternate"][hreflang="x-default"]', { rel: "alternate", hreflang: "x-default" }).setAttribute("href", HREFLANG_URLS["x-default"]);
+  ensureLink('link[rel="sitemap"]', { rel: "sitemap", type: "application/xml" }).setAttribute("href", `${ROOT_URL}sitemap.xml`);
 
   document
     .head
