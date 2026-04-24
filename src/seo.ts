@@ -1,7 +1,7 @@
 import type { Language } from "./translations";
 import { SITE_CONFIG } from "./config";
 
-const DEFAULT_BASE_URL = "https://uzamuseeco.com";
+const DEFAULT_BASE_URL = "https://uzamuseeco.COM";
 
 function normalizeBaseUrl(url: string): string {
   return url.replace(/\/+$/, "");

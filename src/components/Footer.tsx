@@ -31,7 +31,7 @@ export const Footer = React.memo(({ lang, onOpenPdf }: { lang: Language; onOpenP
                 />
               </div>
               <div className="flex flex-col leading-none">
-                <span className="text-2xl font-serif font-bold tracking-tight text-gradient">UZAMUSE<span className="text-primary">ECO</span></span>
+                <span className="text-2xl font-serif font-bold tracking-tight text-gradient">UZAMUSE<span className="text-primary">ECO.COM</span></span>
                 <span className="text-[8px] uppercase tracking-[0.4em] font-bold opacity-40 text-white">Extreme Construction</span>
               </div>
             </div>
