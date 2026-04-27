@@ -194,7 +194,7 @@ export const ContactModal = memo(({ isOpen, onClose, lang }: {
                         <SafeImage src={SITE_CONFIG.logo} alt="Logo" className="w-full h-full object-contain" />
                       </div>
                       <div className="flex flex-col justify-center">
-                        <span className="text-lg sm:text-xl font-serif font-bold text-white tracking-tight leading-tight">UZAMUSE ECO.COM</span>
+                        <span className="text-lg sm:text-xl font-serif font-bold text-white tracking-tight leading-tight">Uzamuse Eco</span>
                         <span className="text-[7px] sm:text-[8px] text-primary font-bold tracking-widest uppercase">Extreme Construction</span>
                       </div>
                     </div>

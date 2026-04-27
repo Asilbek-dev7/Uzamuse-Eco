@@ -59,8 +59,8 @@ export const Navbar = memo(({ onOpenContact, onOpenPdf, lang, setLang, isScrolle
             </div>
             <div className="flex flex-col leading-none">
               <div className="flex items-baseline gap-1.5">
-                <span className="text-xl sm:text-2xl font-serif font-bold tracking-tight text-white">UZAMUSE</span>
-                <span className="text-xl sm:text-2xl font-serif font-bold tracking-tight text-primary">ECO.COM</span>
+                <span className="text-xl sm:text-2xl font-serif font-bold tracking-tight text-white">Uzamuse</span>
+                <span className="text-xl sm:text-2xl font-serif font-bold tracking-tight text-primary">Eco</span>
               </div>
               <span className="text-[7px] sm:text-[8px] uppercase tracking-[0.4em] font-bold opacity-40 text-white group-hover:opacity-60 transition-opacity">EXTREME CONSTRUCTION OVERDRIVE</span>
             </div>
